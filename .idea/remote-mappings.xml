@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteMappingsManager">
+    <list>
+      <list>
+        <remote-mappings server-id="python@ssh://root@10.5.10.10:22/usr/bin/python">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers" remote-root="/usr/lib/python2.7/site-packages/f5/oslbaasv1driver/drivers" />
+              <mapping local-root="$PROJECT_DIR$/common/f5/bigip" remote-root="/usr/lib/python2.7/site-packages/f5/bigip" />
+              <mapping local-root="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip" remote-root="/usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip" />
+            </list>
+          </settings>
+        </remote-mappings>
+      </list>
+    </list>
+  </component>
+</project>
