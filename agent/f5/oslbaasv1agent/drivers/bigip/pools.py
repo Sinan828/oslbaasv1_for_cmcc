@@ -335,7 +335,7 @@ class BigipPoolManager(object):
                   (time() - start_time))
         # Do we have weights for ratios?
         if member['weight'] > 1:
-            if not just_added:
+            if not just_added or just_added:
                 start_time = time()
                 set_ratio = bigip.pool.set_member_ratio
                 set_ratio(name=pool['id'],

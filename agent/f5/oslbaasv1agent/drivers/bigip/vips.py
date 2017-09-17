@@ -130,8 +130,7 @@ class BigipVipManager(object):
 
         virtual_type = 'fastl4'
         if 'protocol' in vip:
-            if vip['protocol'] == 'HTTP' or \
-               vip['protocol'] == 'HTTPS':
+            if vip['protocol'] == 'HTTP':
                 virtual_type = 'standard'
         if 'session_persistence' in vip:
             if vip['session_persistence'] == \

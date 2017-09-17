@@ -267,7 +267,7 @@ class VirtualServer(object):
                     timeout=const.CONNECTION_TIMEOUT)
                 if response.status_code < 400:
                     return True
-                elif response.status_code == 409:
+                elif response.status_code == 409  or response.status_code == 404:
                     return True
                 else:
                     Log.error('profile', response.text)
