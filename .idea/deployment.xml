@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="kilo">
+    <serverData>
+      <paths name="kilo">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/usr/lib/python2.7/site-packages/f5/oslbaasv1driver" local="$PROJECT_DIR$/driver/f5/oslbaasv1driver" web="/" />
+            <mapping deploy="/usr/lib/python2.7/site-packages/f5/oslbaasv1agent" local="$PROJECT_DIR$/agent/f5/oslbaasv1agent" web="/" />
+            <mapping deploy="/usr/lib/python2.7/site-packages/f5/bigip" local="$PROJECT_DIR$/common/f5/bigip" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

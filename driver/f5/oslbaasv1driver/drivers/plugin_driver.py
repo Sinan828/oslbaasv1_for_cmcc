@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import uuid
 import netaddr
 import datetime
@@ -113,6 +112,7 @@ class LoadBalancerCallbacks(object):
         self.scheduler = scheduler
         self.net_cache = {}
         self.subnet_cache = {}
+        self.cluster_wide_agents = {}
 
         self.last_cache_update = datetime.datetime.now()
 
@@ -120,18 +120,82 @@ class LoadBalancerCallbacks(object):
         """ Get the core plugin """
         return self.plugin._core_plugin
 
+    # change the admin_state_up of the an agent
+    @log.log
+    def set_agent_admin_state(self, context, admin_state_up, host=None):
+        """Set the admin_up_state of an agent"""
+        if not host:
+            LOG.error('tried to set agent admin_state_up without host')
+            return False
+        with context.session.begin(subtransactions=True):
+            query = context.session.query(agents_db.Agent)
+            query = query.filter(
+                agents_db.Agent.agent_type ==
+                q_const.AGENT_TYPE_LOADBALANCER,
+                agents_db.Agent.host == host)
+            try:
+                agent = query.one()
+                if not agent.admin_state_up == admin_state_up:
+                    agent.admin_state_up = admin_state_up
+                    context.session.add(agent)
+            except Exception as exc:
+                LOG.error('query for agent produced: %s' % str(exc))
+                return False
+        return True
+
+    # change the admin_state_up of the an agent
+    @log.log
+    def scrub_dead_agents(self, context, env, group, host=None):
+        """Remove all non-alive or admin down agents"""
+        LOG.debug('scrubing dead agent bindings')
+        with context.session.begin(subtransactions=True):
+            try:
+                self.scheduler.scrub_dead_agents(
+                    self.plugin, context, env, group=None)
+            except Exception as exc:
+                LOG.error('scub dead agents exception: %s' % str(exc))
+                return False
+        return True
+
+    # return a single active agent to implement cluster wide changes
+    # which can not efficiently mapped back to a particulare agent
+    @log.log
+    def get_clusterwide_agent(self, context, env, group, host=None):
+        """Get an agent to perform clusterwide tasks"""
+        LOG.debug('getting agent to perform clusterwide tasks')
+        with context.session.begin(subtransactions=True):
+            if (env, group) in self.cluster_wide_agents:
+                known_agent = self.cluster_wide_agents[(env, group)]
+                if self.plugin.is_eligible_agent(active=True,
+                                                 agent=known_agent):
+                    return known_agent
+                else:
+                    del(self.cluster_wide_agents[(env, group)])
+            try:
+                agents = \
+                    self.scheduler.get_agents_in_env(self.plugin,
+                                                     context,
+                                                     env, group, True)
+                if agents:
+                    self.cluster_wide_agents[(env, group)] = agents[0]
+                    return agents[0]
+                else:
+                    LOG.error('no active agents available for clusterwide ',
+                              ' tasks %s group number %s' % (env, group))
+                    return {}
+            except Exception as exc:
+                LOG.error('clusterwide agent exception: %s' % str(exc))
+                return {}
+        return {}
+
     @log.log
     def get_all_pools(self, context, env=None, group=0, host=None):
         """ Get all pools for this group in this env"""
         with context.session.begin(subtransactions=True):
-            if not host:
-                return []
-            agents = self.scheduler.get_agents_in_env(self.plugin,
-                                                      context,
-                                                      env,
-                                                      group)
-            if not agents:
-                return []
+            self.scheduler.scrub_dead_agents(
+                self.plugin, context, env, group)
+            agents = self.scheduler.get_agents_in_env(
+                self.plugin, context, env, group, active=None)
 
             # get all pools associated with this agents in this
             # env + group a build a set of known ACTIVE pools
@@ -156,14 +220,10 @@ class LoadBalancerCallbacks(object):
     def get_active_pools(self, context, env=None, group=0, host=None):
         """ Get pools that are active for this group in this env"""
         with context.session.begin(subtransactions=True):
-            if not host:
-                return []
-            agents = self.scheduler.get_agents_in_env(self.plugin,
-                                                      context,
-                                                      env,
-                                                      group)
-            if not agents:
-                return []
+            self.scheduler.scrub_dead_agents(
+                self.plugin, context, env, group)
+            agents = self.scheduler.get_agents_in_env(
+                self.plugin, context, env, group, active=None)
 
             # get all pools associated with this agents in this
             # env + group a build a set of known ACTIVE pools
@@ -190,14 +250,10 @@ class LoadBalancerCallbacks(object):
     def get_pending_pools(self, context, env=None, group=0, host=None):
         """ Get pools that have pending task for this group in this env"""
         with context.session.begin(subtransactions=True):
-            if not host:
-                return []
-            agents = self.scheduler.get_agents_in_env(self.plugin,
-                                                      context,
-                                                      env,
-                                                      group)
-            if not agents:
-                return []
+            self.scheduler.scrub_dead_agents(
+                self.plugin, context, env, group)
+            agents = self.scheduler.get_agents_in_env(
+                self.plugin, context, env, group, active=None)
 
             pool_ids_by_agent_host = {}
             pools_to_update = []
@@ -267,6 +323,34 @@ class LoadBalancerCallbacks(object):
                         )
 
             return pools_to_update
+
+    @log.log
+    def get_errored_pools(self, context, env, group=None, host=None):
+        """Get pending pools for this group in this env."""
+        pools = []
+        with context.session.begin(subtransactions=True):
+            self.scheduler.scrub_dead_agents(
+                self.plugin, context, env, group)
+            agents = self.scheduler.get_agents_in_env(
+                self.plugin, context, env, group, active=None)
+            for agent in agents:
+                agent_pools = self.plugin.list_pools_on_lbaas_agent(
+                    context,
+                    agent.id
+                )
+                for pool in agent_pools['pools']:
+                    if pool.provisioning_status == constants.ERROR:
+                        pools.append(
+                            {
+                                'agent_host': agent['host'],
+                                'pool_id': pool.id,
+                                'tenant_id': pool.tenant_id
+                            }
+                        )
+        if host:
+            return [pool for pool in pools if pool['agent_host'] == host]
+        else:
+            return pools
 
     @log.log
     def get_service_by_pool_id(

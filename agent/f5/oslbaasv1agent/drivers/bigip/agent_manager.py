@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import uuid
 import datetime
 import copy
 from oslo.config import cfg  # @UnresolvedImport
@@ -52,6 +52,16 @@ __VERSION__ = "0.1.1"
 
 # configuration options useful to all drivers
 OPTS = [
+    cfg.IntOpt(
+        'periodic_interval',
+        default=10,
+        help='Seconds between periodic task runs'
+    ),
+    cfg.BoolOpt(
+        'start_agent_admin_state_up',
+        default=True,
+        help='Should the agent force its admin_state_up to True on boot'
+    ),
     cfg.StrOpt(
         'f5_bigip_lbaas_device_driver',
         default=('f5.oslbaasv1agent.drivers.bigip'
@@ -84,6 +94,11 @@ OPTS = [
         help=_('Interface and VLAN for the VTEP overlay network')
     ),
     cfg.StrOpt(
+        'agent_id',
+        default=None,
+        help=('static agent ID to use with Neutron')
+    ),
+    cfg.StrOpt(
         'static_agent_configuration_data',
         default=None,
         help=_(
@@ -95,7 +110,7 @@ OPTS = [
         help=_('Number of seconds between service refresh check')
     ),
     cfg.StrOpt(
-        'environment_prefix', default='',
+        'environment_prefix', default='uuid',
         help=_('The object name prefix for this environment'),
     ),
     cfg.BoolOpt(
@@ -110,9 +125,22 @@ OPTS = [
     cfg.DictOpt(
         'capacity_policy', default={},
         help=_('Metrics to measure capacity and their limits.')
+    ),
+    cfg.IntOpt(
+        'f5_pending_services_timeout',
+        default=60,
+        help=(
+            'Amount of time to wait for a pending service to become active')
+    ),
+    cfg.IntOpt(
+        'f5_errored_services_timeout',
+        default=60,
+        help=(
+            'Amount of time to wait for a errored service to become active')
     )
 ]
 
+PERIODIC_TASK_INTERVAL = 10
 
 class LogicalServiceCache(object):
     """Manage a cache of known services."""
@@ -207,12 +235,20 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
     def do_init(self, conf):
         LOG.info(_('Initializing LbaasAgentManager'))
         self.conf = conf
+        self.context = context.get_admin_context_without_session()
+        self.serializer = None
+        global PERIODIC_TASK_INTERVAL
+        PERIODIC_TASK_INTERVAL = self.conf.periodic_interval
 
         # create the cache of provisioned services
         self.cache = LogicalServiceCache()
         self.last_resync = datetime.datetime.now()
         self.needs_resync = False
         self.plugin_rpc = None
+        self.tunnel_rpc = None
+        self.l2_pop_rpc = None
+        self.state_rpc = None
+        self.pending_services = {}
 
         if conf.service_resync_interval:
             self.service_resync_interval = conf.service_resync_interval
@@ -221,30 +257,52 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
         LOG.debug(_('setting service resync interval to %d seconds'
                     % self.service_resync_interval))
 
-        try:
-            LOG.debug(_('loading LBaaS driver %s'
-                        % conf.f5_bigip_lbaas_device_driver))
-            self.lbdriver = importutils.import_object(
-                conf.f5_bigip_lbaas_device_driver, self.conf)
-            if self.lbdriver.agent_id:
-                self.agent_host = conf.host + ":" + self.lbdriver.agent_id
-                self.lbdriver.agent_host = self.agent_host
-                LOG.debug('setting agent host to %s' % self.agent_host)
-            else:
-                self.agent_host = None
-                LOG.error(_('Driver did not initialize. Fix the driver config '
-                            'and restart the agent.'))
-                return
-        except ImportError as ie:
-            msg = _('Error importing loadbalancer device driver: %s error %s'
-                    % (conf.f5_bigip_lbaas_device_driver,  repr(ie)))
-            LOG.error(msg)
-            raise SystemExit(msg)
+        self.lbdriver = importutils.import_object(
+            conf.f5_bigip_lbaas_device_driver, self.conf)
 
-        agent_configurations = \
+        # try:
+        #     LOG.debug(_('loading LBaaS driver %s'
+        #                 % conf.f5_bigip_lbaas_device_driver))
+        #         self.lbdriver = importutils.import_object(
+        #             conf.f5_bigip_lbaas_device_driver, self.conf)
+        #     if self.lbdriver.agent_id:
+        #         self.agent_host = conf.host + ":" + self.lbdriver.agent_id
+        #         self.lbdriver.agent_host = self.agent_host
+        #         LOG.debug('setting agent host to %s' % self.agent_host)
+        #     else:
+        #         self.agent_host = None
+        #         LOG.error(_('Driver did not initialize. Fix the driver config '
+        #                     'and restart the agent.'))
+        #         return
+        # except ImportError as ie:
+        #     msg = _('Error importing loadbalancer device driver: %s error %s'
+        #             % (conf.f5_bigip_lbaas_device_driver,  repr(ie)))
+        #     LOG.error(msg)
+        #     raise SystemExit(msg)
+
+        # Set the agent ID
+        if self.conf.agent_id:
+            self.agent_host = self.conf.agent_id
+            LOG.debug('setting agent host to %s' % self.agent_host)
+        else:
+            # If not set statically, add the driver agent env hash
+            agent_hash = str(
+                uuid.uuid5(uuid.NAMESPACE_DNS,
+                           self.conf.environment_prefix +
+                           '.' + self.lbdriver.hostnames[0])
+                )
+            self.agent_host = conf.host + ":" + agent_hash
+            LOG.debug('setting agent host to %s' % self.agent_host)
+
+        # agent_configurations = \
+        #     {'environment_prefix': self.conf.environment_prefix,
+        #      'environment_group_number': self.conf.environment_group_number,
+        #      'global_routed_mode': self.conf.f5_global_routed_mode}
+        agent_configurations = (
             {'environment_prefix': self.conf.environment_prefix,
              'environment_group_number': self.conf.environment_group_number,
              'global_routed_mode': self.conf.f5_global_routed_mode}
+        )
 
         if self.conf.static_agent_configuration_data:
             entries = \
@@ -253,6 +311,8 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
                 nv = entry.strip().split(':')
                 if len(nv) > 1:
                     agent_configurations[nv[0]] = nv[1]
+
+        self.admin_state_up = self.conf.start_agent_admin_state_up
 
         self.agent_state = {
             'binary': lbaasv1constants.AGENT_BINARY_NAME,
@@ -263,22 +323,52 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
             'configurations': agent_configurations,
             'start_flag': True}
 
-        self.admin_state_up = True
-
-        self.context = context.get_admin_context_without_session()
-        # pass context to driver
-        self.lbdriver.set_context(self.context)
-
-        # setup all rpc and callback objects
+        # Setup RPC for communications to and from controller
         self._setup_rpc()
 
-        # allow driver to run post init process now that
-        # rpc is all setup
-        self.lbdriver.post_init()
+        # Load the driver.
+        self._load_driver(conf)
 
-        # cause a sync of what Neutron believes
-        # needs to be handled by this agent
+        # Set driver context for RPC.
+        self.lbdriver.set_context(self.context)
+        # Allow the driver to make callbacks to the LBaaS driver plugin
+        self.lbdriver.set_plugin_rpc(self.plugin_rpc)
+        # Allow the driver to update tunnel endpoints
+        self.lbdriver.set_tunnel_rpc(self.tunnel_rpc)
+        # Allow the driver to update forwarding records in the SDN
+        self.lbdriver.set_l2pop_rpc(self.l2_pop_rpc)
+        # Allow the driver to force and agent state report to the controller
+        self.lbdriver.set_agent_report_state(self._report_state)
+
+        # Set the flag to resync tunnels/services
         self.needs_resync = True
+
+        # Mark this agent admin_state_up per startup policy
+        if(self.admin_state_up):
+            self.plugin_rpc.set_agent_admin_state(self.admin_state_up)
+
+        # Start state reporting of agent to Neutron
+        report_interval = self.conf.AGENT.report_interval
+        if report_interval:
+            heartbeat = loopingcall.FixedIntervalLoopingCall(
+                self._report_state)
+            heartbeat.start(interval=report_interval)
+
+    def _load_driver(self, conf):
+        self.lbdriver = None
+
+        LOG.debug('loading LBaaS driver %s' %
+                  conf.f5_bigip_lbaas_device_driver)
+        try:
+            self.lbdriver = importutils.import_object(
+                conf.f5_bigip_lbaas_device_driver,
+                self.conf)
+            return
+        except ImportError as ie:
+            msg = ('Error importing loadbalancer device driver: %s error %s'
+                   % (conf.f5_bigip_lbaas_device_driver, repr(ie)))
+            LOG.error(msg)
+            raise SystemExit(msg)
 
     @log.log
     def _setup_rpc(self):
@@ -356,36 +446,58 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
                     consumers
                 )
 
-    def _report_state(self):
+    def _report_state(self, force_resync=False):
         try:
-            # assure agent is connected:
-            if not self.lbdriver.connected:
-                self.lbdriver.connect()
+            if force_resync:
+                self.needs_resync = True
+                self.cache.services = {}
+                self.lbdriver.flush_cache()
+            # use the admin_state_up to notify the
+            # controller if all backend devices
+            # are functioning properly. If not
+            # automatically set the admin_state_up
+            # for this agent to False
+            if self.lbdriver:
+                if not self.lbdriver.backend_integrity():
+                    self.needs_resync = True
+                    self.cache.services = {}
+                    self.needs_resync = True
+                    self.lbdriver.flush_cache()
+                    self.plugin_rpc.set_agent_admin_state(False)
+                    self.admin_state_up = False
+                else:
+                    # if we are transitioning from down to up,
+                    # change the controller state for this agent
+                    if not self.admin_state_up:
+                        self.plugin_rpc.set_agent_admin_state(True)
+                        self.admin_state_up = True
 
-            service_count = self.cache.size
-            self.agent_state['configurations']['services'] = service_count
-            if hasattr(self.lbdriver, 'service_queue'):
-                self.agent_state['configurations']['request_queue_depth'] = \
-                    len(self.lbdriver.service_queue)
-            if self.lbdriver.agent_configurations:
+            if self.lbdriver:
                 self.agent_state['configurations'].update(
-                    self.lbdriver.agent_configurations
+                    self.lbdriver.get_agent_configurations()
                 )
+
+            # add the capacity score, used by the scheduler
+            # for horizontal scaling of an environment, from
+            # the driver
             if self.conf.capacity_policy:
-                env_score = \
+                env_score = (
                     self.lbdriver.generate_capacity_score(
                         self.conf.capacity_policy
                     )
+                )
                 self.agent_state['configurations'][
-                    'environment_capacity_score'] = env_score
+                    'environment_capaciy_score'] = env_score
             else:
                 self.agent_state['configurations'][
                     'environment_capacity_score'] = 0
-            LOG.debug(_('reporting state of agent as: %s' % self.agent_state))
+
+            LOG.debug("reporting state of agent as: %s" % self.agent_state)
             self.state_rpc.report_state(self.context, self.agent_state)
             self.agent_state.pop('start_flag', None)
+
         except Exception as e:
-            LOG.exception(_("Failed reporting state!: " + str(e.message)))
+            LOG.exception(("Failed to report state: " + str(e.message)))
 
     def initialize_service_hook(self, started_by):
         # Prior to Juno.2, multiple listeners were created, including
@@ -400,31 +512,42 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
                 node_topic, endpoints, fanout=False)
         self.sync_state()
 
+    @periodic_task.periodic_task(spacing=PERIODIC_TASK_INTERVAL)
+    def connect_driver(self, context):
+        """Trigger driver connect attempts to all devices"""
+        if self.lbdriver:
+            self.lbdriver.connect()
+
     @periodic_task.periodic_task
     def periodic_resync(self, context):
         LOG.debug("tunnel_sync: periodic_resync called")
         now = datetime.datetime.now()
-        # Only force resync if the agent thinks it is
-        # synchronized and the resync timer has exired
-        if (now - self.last_resync).seconds > \
-                self.service_resync_interval:
-            if not self.needs_resync:
+        # check if a resync has not been requested by the driver
+        if not self.needs_resync:
+            # check if we hit the resync interval
+            if (now - self.last_resync).seconds > self.service_resync_interval:
                 self.needs_resync = True
                 LOG.debug(
-                    'Forcing resync of services on resync timer (%d seconds).'
+                    'forcing resync of services on resync timer (%d seconds).'
                     % self.service_resync_interval)
                 self.cache.services = {}
                 self.last_resync = now
                 self.lbdriver.flush_cache()
-        LOG.debug("tunnel_sync: periodic_resync need_resync: %s"
-                  % str(self.needs_resync))
+                LOG.debug("periodic_sync: service_resync_interval expired: %s"
+                          % str(self.needs_resync))
         # resync if we need to
         if self.needs_resync:
+            LOG.debug("resync required at: %s" % now)
             self.needs_resync = False
+            # advertise devices as VTEPs if required
             if self.tunnel_sync():
                 self.needs_resync = True
+            # synchronize LBaaS objects from controller
             if self.sync_state():
                 self.needs_resync = True
+            # clean any objects orphaned on devices and persist configs
+            # if self.clean_orphaned_objects_and_save_device_config():
+            #     self.needs_resync = True
 
     @periodic_task.periodic_task(spacing=30)
     def collect_stats(self, context):
@@ -458,59 +581,161 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
         return self.lbdriver.tunnel_sync()
 
     def sync_state(self):
-        if not self.plugin_rpc:
-            return
+        # if not self.plugin_rpc:
+        #     return
+        # resync = False
+        # known_services = set()
+        # for service in self.cache.services:
+        #     if self.agent_host == self.cache.services[service].agent_host:
+        #         known_services.add(service)
+        # try:
+        #     # this produces a list of active pools for this agent
+        #     # or for this agents env + group if using specific env
+        #     active_pools = self.plugin_rpc.get_active_pools()
+        #     active_pool_ids = set()
+        #     for pool in active_pools:
+        #         if self.agent_host == pool['agent_host']:
+        #             active_pool_ids.add(pool['pool_id'])
+        #     LOG.debug(_('plugin produced the list of active pool ids: %s'
+        #                 % list(active_pool_ids)))
+        #     LOG.debug(_('currently known pool ids before sync are: %s'
+        #                 % list(known_services)))
+        #     # remove any pools in cache which Neutron plugin does
+        #     # not know about.
+        #     for deleted_id in known_services - active_pool_ids:
+        #         self.destroy_service(deleted_id)
+        #     # validate each service we are supposed to know about
+        #     for pool_id in active_pool_ids:
+        #         if not self.cache.get_by_pool_id(pool_id):
+        #             self.validate_service(pool_id)
+        #     # this produces a list of pools with pending tasks
+        #     # to be performed
+        #     pending_pools = self.plugin_rpc.get_pending_pools()
+        #     pending_pool_ids = set()
+        #     for pool in pending_pools:
+        #         if self.agent_host == pool['agent_host']:
+        #             pending_pool_ids.add(pool['pool_id'])
+        #     LOG.debug(_('plugin produced the list of pending pool ids: %s'
+        #                 % pending_pool_ids))
+        #     # complete each pending task
+        #     for pool_id in pending_pool_ids:
+        #         self.refresh_service(pool_id)
+        #     # get a list of any cached service we know now after
+        #     # refreshing services
+        #     known_services = set()
+        #     for service in self.cache.services:
+        #         if self.agent_host == self.cache.services[service].agent_host:
+        #             known_services.add(service)
+        #     LOG.debug(_('currently known pool ids after sync are: %s'
+        #                 % list(known_services)))
+        #     # remove any orphaned services we find on the bigips
+        #     all_pools = self.plugin_rpc.get_all_pools()
+        #     self.remove_orphans(all_pools)
+        # except Exception:
+        #     LOG.exception(_('Unable to retrieve ready services'))
+        #     resync = True
+        # return resync
+        """Synchronize device configuration from controller state."""
         resync = False
+
+        if hasattr(self, 'lbdriver'):
+            if not self.lbdriver.backend_integrity():
+                return resync
+
         known_services = set()
-        for service in self.cache.services:
-            if self.agent_host == self.cache.services[service].agent_host:
-                known_services.add(service)
+        owned_services = set()
+        for pool_id, service in self.cache.services.iteritems():
+            known_services.add(pool_id)
+            if self.agent_host == service.agent_host:
+                owned_services.add(pool_id)
+        now = datetime.datetime.now()
+
         try:
-            # this produces a list of active pools for this agent
-            # or for this agents env + group if using specific env
-            active_pools = self.plugin_rpc.get_active_pools()
-            active_pool_ids = set()
-            for pool in active_pools:
-                if self.agent_host == pool['agent_host']:
-                    active_pool_ids.add(pool['pool_id'])
-            LOG.debug(_('plugin produced the list of active pool ids: %s'
-                        % list(active_pool_ids)))
-            LOG.debug(_('currently known pool ids before sync are: %s'
-                        % list(known_services)))
-            # remove any pools in cache which Neutron plugin does
-            # not know about.
-            for deleted_id in known_services - active_pool_ids:
-                self.destroy_service(deleted_id)
-            # validate each service we are supposed to know about
+            # Get loadbalancers from the environment which are bound to
+            # this agent.
+            active_pools = (
+                self.plugin_rpc.get_active_pools(host=self.agent_host)
+            )
+            active_pool_ids = set(
+                [pool['pool_id'] for pool in active_pools]
+            )
+
+            LOG.debug("plugin produced the list of active pool ids: %s"
+                      % list(active_pool_ids))
+            LOG.debug("currently known pool ids before sync are: %s"
+                      % list(known_services))
+
+            # Validate each service we own, i.e. loadbalancers to which this
+            # agent is bound, that does not exist in our service cache.
             for pool_id in active_pool_ids:
                 if not self.cache.get_by_pool_id(pool_id):
                     self.validate_service(pool_id)
-            # this produces a list of pools with pending tasks
-            # to be performed
-            pending_pools = self.plugin_rpc.get_pending_pools()
-            pending_pool_ids = set()
-            for pool in pending_pools:
-                if self.agent_host == pool['agent_host']:
-                    pending_pool_ids.add(pool['pool_id'])
-            LOG.debug(_('plugin produced the list of pending pool ids: %s'
-                        % pending_pool_ids))
-            # complete each pending task
+
+            errored_pools = (
+                self.plugin_rpc.get_errored_pools(host=self.agent_host)
+            )
+            errored_pool_ids = set(
+                [pool['pool_id'] for pool in errored_pools]
+            )
+
+            LOG.debug(
+                "plugin produced the list of errored pool ids: %s"
+                % list(errored_pool_ids))
+            LOG.debug("currently known pool ids before sync are: %s"
+                      % list(known_services))
+
+            # Validate each service we own, i.e. pools to which this
+            # agent is bound, that does not exist in our service cache.
+            for pool_id in errored_pool_ids:
+                if not self.cache.get_by_pool_id(pool_id):
+                    self.validate_service(pool_id)
+
+            # This produces a list of loadbalancers with pending tasks to
+            # be performed.
+            pending_pools = (
+                self.plugin_rpc.get_pending_pools(host=self.agent_host)
+            )
+            pending_pool_ids = set(
+                [pool['pool_id'] for pool in pending_pools]
+            )
+            LOG.debug(
+                "plugin produced the list of pending pool ids: %s"
+                % list(pending_pool_ids))
+
             for pool_id in pending_pool_ids:
-                self.refresh_service(pool_id)
-            # get a list of any cached service we know now after
+                pool_pending = self.refresh_service(pool_id)
+                if pool_pending:
+                    if pool_id not in self.pending_services:
+                        self.pending_services[pool_id] = now
+
+                    time_added = self.pending_services[pool_id]
+                    time_expired = ((now - time_added).seconds >
+                                    self.conf.f5_pending_services_timeout)
+
+                    if time_expired:
+                        pool_pending = False
+                        self.service_timeout(pool_id)
+
+                if not pool_pending:
+                    del self.pending_services[pool_id]
+
+            # If there are services in the pending cache resync
+            if self.pending_services:
+                resync = True
+
+            # Get a list of any cached service we now know after
             # refreshing services
             known_services = set()
-            for service in self.cache.services:
-                if self.agent_host == self.cache.services[service].agent_host:
-                    known_services.add(service)
-            LOG.debug(_('currently known pool ids after sync are: %s'
-                        % list(known_services)))
-            # remove any orphaned services we find on the bigips
-            all_pools = self.plugin_rpc.get_all_pools()
-            self.remove_orphans(all_pools)
-        except Exception:
-            LOG.exception(_('Unable to retrieve ready services'))
+            for (pool_id, service) in self.cache.services.iteritems():
+                if self.agent_host == service.agent_host:
+                    known_services.add(pool_id)
+            LOG.debug("currently known pool ids after sync: %s"
+                      % list(known_services))
+
+        except Exception as e:
+            LOG.error("Unable to sync state: %s" % e.message)
             resync = True
+
         return resync
 
     @log.log
@@ -558,6 +783,19 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
             self.needs_resync = True
 
     @log.log
+    def service_timeout(self, pool_id):
+        try:
+            service = self.plugin_rpc.get_service_by_pool_id(
+                pool_id
+            )
+            self.cache.put(service, self.agent_host)
+            self.lbdriver.update_service_status(service, timed_out=True)
+        except NeutronException as exc:
+            LOG.error("NeutronException: %s" % exc.msg)
+        except Exception as e:
+            LOG.error("Exception: %s" % e.message)
+
+    @log.log
     def destroy_service(self, pool_id):
         if not self.plugin_rpc:
             return
@@ -575,6 +813,92 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
             LOG.error("Exception: %s" % exc.message)
             self.needs_resync = True
         self.cache.remove_by_pool_id(pool_id)
+
+    @log.log
+    def clean_orphaned_objects_and_save_device_config(self):
+
+        cleaned = False
+
+        try:
+            #
+            # Global cluster refresh tasks
+            #
+
+            global_agent = self.plugin_rpc.get_clusterwide_agent(
+                self.conf.environment_prefix,
+                self.conf.environment_group_number
+            )
+
+            if 'host' not in global_agent:
+                LOG.debug('No global agent available to sync config')
+                return True
+
+            if global_agent['host'] == self.agent_host:
+                LOG.debug('this agent is the global config agent')
+                # We're the global agent perform global cluster tasks
+
+                # There are two independent types of service objects
+                # the LBaaS implments: 1) loadbalancers + 2) pools
+                # We will first try to find any orphaned pools
+                # and remove them.
+
+                # Ask BIG-IP for all deployed loadbalancers (virtual addresses)
+                lbs = self.lbdriver.get_all_deployed_loadbalancers(
+                    purge_orphaned_folders=True)
+                if lbs:
+                    # Ask Neutron for the status of each deployed loadbalancer
+                    lbs_status = self.plugin_rpc.validate_loadbalancers_state(
+                        list(lbs.keys()))
+                    LOG.debug('validate_loadbalancers_state returned: %s'
+                              % lbs_status)
+                    lbs_removed = False
+                    for lbid in lbs_status:
+                        # If the statu is Unknown, it no longer exists
+                        # in Neutron and thus should be removed from the BIG-IP
+                        if lbs_status[lbid] in ['Unknown']:
+                            LOG.debug('removing orphaned loadbalancer %s'
+                                      % lbid)
+                            # This will remove pools, virtual servers and
+                            # virtual addresses
+                            self.lbdriver.purge_orphaned_loadbalancer(
+                                tenant_id=lbs[lbid]['tenant_id'],
+                                loadbalancer_id=lbid,
+                                hostnames=lbs[lbid]['hostnames'])
+                            lbs_removed = True
+                    if lbs_removed:
+                        # If we have removed load balancers, then scrub
+                        # for tenant folders we can delete because they
+                        # no longer contain loadbalancers.
+                        self.lbdriver.get_all_deployed_loadbalancers(
+                            purge_orphaned_folders=True)
+
+                # Ask the BIG-IP for all deployed pools not associated
+                # to a virtual server
+                pools = self.lbdriver.get_all_deployed_pools()
+                if pools:
+                    # Ask Neutron for the status of all deployed pools
+                    pools_status = self.plugin_rpc.validate_pools_state(
+                        list(pools.keys()))
+                    LOG.debug('validated_pools_state returned: %s'
+                              % pools_status)
+                    for poolid in pools_status:
+                        # If the pool status is Unknown, it no longer exists
+                        # in Neutron and thus should be removed from BIG-IP
+                        if pools_status[poolid] in ['Unknown']:
+                            LOG.debug('removing orphaned pool %s' % poolid)
+                            self.lbdriver.purge_orphaned_pool(
+                                tenant_id=pools[poolid]['tenant_id'],
+                                pool_id=poolid,
+                                hostnames=pools[poolid]['hostnames'])
+            else:
+                LOG.debug('the global agent is %s' % (global_agent['host']))
+            # serialize config and save to disk
+            self.lbdriver.backup_configuration()
+        except Exception as e:
+            LOG.error("Unable to sync state: %s" % e.message)
+            cleaned = True
+
+        return cleaned
 
     @log.log
     def remove_orphans(self, all_pools):

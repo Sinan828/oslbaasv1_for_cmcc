@@ -65,7 +65,7 @@ class LbaasAgentApi(RpcProxy):
         )
 
     @log.log
-    def get_active_pools(self):
+    def get_active_pools(self, env=None, group=None, host=None):
         return self.call(
             self.context,
             self.make_msg(
@@ -78,7 +78,7 @@ class LbaasAgentApi(RpcProxy):
         )
 
     @log.log
-    def get_pending_pools(self):
+    def get_pending_pools(self, env=None, group=None, host=None):
         return self.call(
             self.context,
             self.make_msg(
@@ -87,6 +87,18 @@ class LbaasAgentApi(RpcProxy):
                 group=self.group,
                 host=self.host
             ),
+            topic=self.topic
+        )
+
+    @log.log
+    def get_errored_pools(self, env=None, group=None, host=None):
+        """Retrieve a list of errored pools for this agent."""
+        return self.call(
+            self.context,
+            self.make_msg('get_pending_pools',
+                          env=env,
+                          group=group,
+                          host=host),
             topic=self.topic
         )
 
@@ -100,6 +112,62 @@ class LbaasAgentApi(RpcProxy):
                 global_routed_mode=global_routed_mode,
                 host=self.host
             ),
+            topic=self.topic
+        )
+
+    @log.log
+    def set_agent_admin_state(self, admin_state_up):
+        return self.call(
+            self.context,
+            self.make_msg('set_agent_admin_state',
+                          admin_state_up=admin_state_up,
+                          host=self.host),
+            topic=self.topic
+        )
+
+    @log.log
+    def scrub_dead_agents(self, env, group):
+        """Set the admin_state_up of for this agent"""
+        return self.call(
+            self.context,
+            self.make_msg('scrub_dead_agents',
+                          env=env,
+                          group=group,
+                          host=self.host),
+            topic=self.topic
+        )
+
+    @log.log
+    def get_clusterwide_agent(self, env, group):
+        """Determin which agent performce global tasks for the cluster"""
+        return self.call(
+            self.context,
+            self.make_msg('get_clusterwide_agent',
+                          env=env,
+                          group=group,
+                          host=self.host),
+            topic=self.topic
+        )
+
+    @log.log
+    def validate_pools_state(self, pools):
+        """Get the status of a list of pools IDs in Neutron"""
+        return self.call(
+            self.context,
+            self.make_msg('validate_pools_state',
+                          pools=pools,
+                          host=self.host),
+            topic=self.topic
+        )
+
+    @log.log
+    def validate_pools_state(self, vips):
+        """Get the status of a list of vips IDs in Neutron"""
+        return self.call(
+            self.context,
+            self.make_msg('validate_vips_state',
+                          vips=vips,
+                          host=self.host),
             topic=self.topic
         )
 

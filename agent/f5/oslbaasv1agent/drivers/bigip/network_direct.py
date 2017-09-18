@@ -46,37 +46,37 @@ class NetworkBuilderDirect(object):
             driver, bigip_l2_manager, l3_binding)
         self.rds_cache = {}
 
-    def initialize_tunneling(self):
+    def initialize_tunneling(self, bigip):
         """ setup tunneling
             setup VTEP tunnels if needed """
         vtep_folder = self.conf.f5_vtep_folder
         vtep_selfip_name = self.conf.f5_vtep_selfip_name
         local_ips = []
 
-        for bigip in self.driver.get_all_bigips():
+        # for bigip in self.driver.get_all_bigips():
 
-            if not vtep_folder or vtep_folder.lower() == 'none':
-                vtep_folder = 'Common'
+        if not vtep_folder or vtep_folder.lower() == 'none':
+            vtep_folder = 'Common'
 
-            if vtep_selfip_name and \
-               not vtep_selfip_name.lower() == 'none':
+        if vtep_selfip_name and \
+           not vtep_selfip_name.lower() == 'none':
 
-                # profiles may already exist
-                bigip.vxlan.create_multipoint_profile(
-                    name='vxlan_ovs', folder='Common')
-                bigip.l2gre.create_multipoint_profile(
-                    name='gre_ovs', folder='Common')
-                # find the IP address for the selfip for each box
-                local_ip = bigip.selfip.get_addr(vtep_selfip_name, vtep_folder)
-                if local_ip:
-                    bigip.local_ip = local_ip
-                    local_ips.append(local_ip)
-                else:
-                    raise f5ex.MissingVTEPAddress(
-                        'device %s missing vtep selfip %s'
-                        % (bigip.device_name,
-                           '/' + vtep_folder + '/' +
-                           vtep_selfip_name))
+            # profiles may already exist
+            bigip.vxlan.create_multipoint_profile(
+                name='vxlan_ovs', folder='Common')
+            bigip.l2gre.create_multipoint_profile(
+                name='gre_ovs', folder='Common')
+            # find the IP address for the selfip for each box
+            local_ip = bigip.selfip.get_addr(vtep_selfip_name, vtep_folder)
+            if local_ip:
+                bigip.local_ip = local_ip
+                local_ips.append(local_ip)
+            else:
+                raise f5ex.MissingVTEPAddress(
+                    'device %s missing vtep selfip %s'
+                    % (bigip.device_name,
+                       '/' + vtep_folder + '/' +
+                       vtep_selfip_name))
         return local_ips
 
     def prep_service_networking(self, service, traffic_group):
