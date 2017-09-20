@@ -120,8 +120,26 @@ class LBaaSBuilderBigipObjects(LBaaSBuilder):
             subnet_hints = all_subnet_hints[bigip.device_name]
             subnet = vip['subnet']
 
-            if vip['status'] == plugin_const.PENDING_CREATE or \
-               vip['status'] == plugin_const.PENDING_UPDATE:
+            # if vip['status'] == plugin_const.PENDING_CREATE or \
+            #    vip['status'] == plugin_const.PENDING_UPDATE:
+            #     self.bigip_vip_manager.assure_bigip_create_vip(
+            #         bigip, service, traffic_group)
+            #     if subnet and subnet['id'] in \
+            #             subnet_hints['check_for_delete_subnets']:
+            #         del subnet_hints['check_for_delete_subnets'][subnet['id']]
+            #     if subnet and subnet['id'] not in \
+            #             subnet_hints['do_not_delete_subnets']:
+            #         subnet_hints['do_not_delete_subnets'].append(subnet['id'])
+            #
+            # elif vip['status'] == plugin_const.PENDING_DELETE:
+            #     self.bigip_vip_manager.assure_bigip_delete_vip(bigip, service)
+            #     if subnet and subnet['id'] not in \
+            #             subnet_hints['do_not_delete_subnets']:
+            #         subnet_hints['check_for_delete_subnets'][subnet['id']] = \
+            #             {'network': vip['network'],
+            #              'subnet': subnet,
+            #              'is_for_member': False}
+            if vip['status'] != plugin_const.PENDING_DELETE:
                 self.bigip_vip_manager.assure_bigip_create_vip(
                     bigip, service, traffic_group)
                 if subnet and subnet['id'] in \
@@ -131,7 +149,7 @@ class LBaaSBuilderBigipObjects(LBaaSBuilder):
                         subnet_hints['do_not_delete_subnets']:
                     subnet_hints['do_not_delete_subnets'].append(subnet['id'])
 
-            elif vip['status'] == plugin_const.PENDING_DELETE:
+            else:
                 self.bigip_vip_manager.assure_bigip_delete_vip(bigip, service)
                 if subnet and subnet['id'] not in \
                         subnet_hints['do_not_delete_subnets']:

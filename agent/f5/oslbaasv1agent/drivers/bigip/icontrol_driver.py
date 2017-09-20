@@ -1282,6 +1282,7 @@ class iControlDriver(LBaaSBaseDriver):
         """ Returns whether the bigip has a pool for the service """
         if not service['pool']:
             return False
+        folder_name = bigip_interfaces.OBJ_PREFIX + service['pool']['tenant_id']
         if self.lbaas_builder_bigiq_iapp:
             builder = self.lbaas_builder_bigiq_iapp
             readiness = builder.check_tenant_bigiq_readiness(service)
@@ -1291,11 +1292,35 @@ class iControlDriver(LBaaSBaseDriver):
         if use_bigiq:
             return self.lbaas_builder_bigiq_iapp.exists(service)
         else:
-            bigip = self.get_bigip()
-            return bigip.pool.exists(
-                name=service['pool']['id'],
-                folder=service['pool']['tenant_id'],
-                config_mode=self.conf.icontrol_config_mode)
+            bigips = self.get_config_bigips()
+            for bigip in bigips:
+                if not bigip.system.folder_exists(folder_name):
+                    LOG.error("Folder %s does not exists on bigip: %s" %
+                              (folder_name, bigip.hostname))
+                    return False
+                pl = bigip.pool.exists(name=service['pool']['id'],
+                                       folder=service['pool']['tenant_id'],
+                                       config_mode=self.conf.icontrol_config_mode)
+                if not pl:
+                    return False
+
+                vs = bigip.virtual_server.get_virtual_servers_by_pool_name(
+                    pool_name=bigip_interfaces.OBJ_PREFIX + service['pool']['id'],
+                    folder=service['pool']['tenant_id']
+                )
+                if not vs:
+                    return False
+
+                for member in service['members']:
+                    mb = bigip.pool.member_exists(
+                        name=service['pool']['id'],
+                        ip_address=member['address'],
+                        port=member['protocol_port'],
+                        folder=service['pool']['tenant_id']
+                    )
+                    if not mb:
+                        return False
+        return True
 
     def _common_service_handler(self, service):
         """ Assure that the service is configured on bigip(s) """

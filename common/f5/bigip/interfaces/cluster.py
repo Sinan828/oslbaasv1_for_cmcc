@@ -69,9 +69,11 @@ class Cluster(object):
     @log
     def save_config(self):
         """ Save the bigip configuration """
-        request_url = self.bigip.icr_url + '/sys/config'
+        # request_url = self.bigip.icr_url + '/sys/config'
+        request_url = self.bigip.icr_url + '/util/bash'
         payload = dict()
-        payload['command'] = 'save'
+        payload['command'] = 'run'
+        payload['utilCmdArgs'] = "-c 'tmsh save sys config'"
         response = self.bigip.icr_session.post(
             request_url, data=json.dumps(payload),
             timeout=const.CONNECTION_TIMEOUT)
