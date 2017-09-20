@@ -536,8 +536,6 @@ class iControlDriver(LBaaSBaseDriver):
                     self._init_bigip(bigip, hostname, device_group_name)
                     LOG.debug('initializing agent configurations %s'
                               % hostname)
-                    LOG.error('XXXX new bigip:%s', bigip)
-                    LOG.error('XXXX new bigip info:%s', bigip.__dict__)
                     self._init_agent_config(bigip)
                     # Assure basic BIG-IP HA is operational
                     LOG.debug('validating HA state for %s' % hostname)
@@ -607,7 +605,7 @@ class iControlDriver(LBaaSBaseDriver):
                             bigip.status = 'active'
                             bigip.status_message = \
                                 'BIG-IP ready for provisioning'
-                            self._post_init()
+                            # self._post_init()
                             self._set_agent_status(True)
                         else:
                             LOG.debug('setting status to error for %s'
@@ -732,35 +730,6 @@ class iControlDriver(LBaaSBaseDriver):
         return bigip
 
     def _validate_ha(self, bigip):
-        # """ if there was only one address supplied and
-        #     this is not a standalone device, get the
-        #     devices trusted by this device. """
-        # if self.conf.f5_ha_type == 'standalone':
-        #     return True
-        # else:
-        #     # how many active BIG-IPs are there?
-        #     active_bigips = self.get_active_bigips()
-        #     if active_bigips:
-        #         sync_status = bigip.cluster.get_sync_status()
-        #         if sync_status in ['Disconnected', 'Sync Failure']:
-        #             if len(active_bigips) > 1:
-        #                 # the device should not be in the disconnected state
-        #                 return False
-        #         if len(active_bigips) > 1:
-        #             # it should be in the same sync-failover group
-        #             # as the rest of the active bigips
-        #             device_group_name = \
-        #                 bigip.device.get_device_group()
-        #             for ab in active_bigips:
-        #                 adgn = ab.device.get_device_group()
-        #                 if not adgn == device_group_name:
-        #                     return False
-        #         return True
-        #     else:
-        #         return True
-        # if there was only one address supplied and
-        # this is not a standalone device, get the
-        # devices trusted by this device. """
         device_group_name = None
         if self.conf.f5_ha_type == 'standalone':
             if len(self.hostnames) != 1:
@@ -804,6 +773,31 @@ class iControlDriver(LBaaSBaseDriver):
                 raise f5ex.BigIPClusterInvalidHA(
                     'HA mode is pair and 1 hosts found.')
         return device_group_name
+
+    def _validate_ha_operational(self, bigip):
+        if self.conf.f5_ha_type == 'standalone':
+            return True
+        else:
+            # how many active BIG-IPs are there?
+            active_bigips = self.get_active_bigips()
+            if active_bigips:
+                sync_status = bigip.cluster.get_sync_status()
+                if sync_status in ['Disconnected', 'Sync Failure']:
+                    if len(active_bigips) > 1:
+                        # the device should not be in the disconnected state
+                        return False
+                if len(active_bigips) > 1:
+                    # it should be in the same sync-failover group
+                    # as the rest of the active bigips
+                    device_group_name = \
+                        bigip.cluster.get_device_group()
+                    for ab in active_bigips:
+                        adgn = ab.cluster.get_device_group()
+                        if not adgn == device_group_name:
+                            return False
+                return True
+            else:
+                return True
 
     def _init_agent_config(self, bigip):
         """ Init agent config """

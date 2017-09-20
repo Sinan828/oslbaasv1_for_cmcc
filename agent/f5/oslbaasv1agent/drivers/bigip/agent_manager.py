@@ -110,7 +110,7 @@ OPTS = [
         help=_('Number of seconds between service refresh check')
     ),
     cfg.StrOpt(
-        'environment_prefix', default='uuid',
+        'environment_prefix', default='',
         help=_('The object name prefix for this environment'),
     ),
     cfg.BoolOpt(
@@ -518,6 +518,13 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
         if self.lbdriver:
             self.lbdriver.connect()
 
+    @periodic_task.periodic_task(spacing=PERIODIC_TASK_INTERVAL)
+    def recover_errored_devices(self, context):
+        """Try to reconnect to errored devices."""
+        if self.lbdriver:
+            LOG.debug("running periodic task to retry errored devices")
+            self.lbdriver.recover_errored_devices()
+
     @periodic_task.periodic_task
     def periodic_resync(self, context):
         LOG.debug("tunnel_sync: periodic_resync called")
@@ -581,60 +588,6 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
         return self.lbdriver.tunnel_sync()
 
     def sync_state(self):
-        # if not self.plugin_rpc:
-        #     return
-        # resync = False
-        # known_services = set()
-        # for service in self.cache.services:
-        #     if self.agent_host == self.cache.services[service].agent_host:
-        #         known_services.add(service)
-        # try:
-        #     # this produces a list of active pools for this agent
-        #     # or for this agents env + group if using specific env
-        #     active_pools = self.plugin_rpc.get_active_pools()
-        #     active_pool_ids = set()
-        #     for pool in active_pools:
-        #         if self.agent_host == pool['agent_host']:
-        #             active_pool_ids.add(pool['pool_id'])
-        #     LOG.debug(_('plugin produced the list of active pool ids: %s'
-        #                 % list(active_pool_ids)))
-        #     LOG.debug(_('currently known pool ids before sync are: %s'
-        #                 % list(known_services)))
-        #     # remove any pools in cache which Neutron plugin does
-        #     # not know about.
-        #     for deleted_id in known_services - active_pool_ids:
-        #         self.destroy_service(deleted_id)
-        #     # validate each service we are supposed to know about
-        #     for pool_id in active_pool_ids:
-        #         if not self.cache.get_by_pool_id(pool_id):
-        #             self.validate_service(pool_id)
-        #     # this produces a list of pools with pending tasks
-        #     # to be performed
-        #     pending_pools = self.plugin_rpc.get_pending_pools()
-        #     pending_pool_ids = set()
-        #     for pool in pending_pools:
-        #         if self.agent_host == pool['agent_host']:
-        #             pending_pool_ids.add(pool['pool_id'])
-        #     LOG.debug(_('plugin produced the list of pending pool ids: %s'
-        #                 % pending_pool_ids))
-        #     # complete each pending task
-        #     for pool_id in pending_pool_ids:
-        #         self.refresh_service(pool_id)
-        #     # get a list of any cached service we know now after
-        #     # refreshing services
-        #     known_services = set()
-        #     for service in self.cache.services:
-        #         if self.agent_host == self.cache.services[service].agent_host:
-        #             known_services.add(service)
-        #     LOG.debug(_('currently known pool ids after sync are: %s'
-        #                 % list(known_services)))
-        #     # remove any orphaned services we find on the bigips
-        #     all_pools = self.plugin_rpc.get_all_pools()
-        #     self.remove_orphans(all_pools)
-        # except Exception:
-        #     LOG.exception(_('Unable to retrieve ready services'))
-        #     resync = True
-        # return resync
         """Synchronize device configuration from controller state."""
         resync = False
 
@@ -651,7 +604,7 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
         now = datetime.datetime.now()
 
         try:
-            # Get loadbalancers from the environment which are bound to
+            # Get pools from the environment which are bound to
             # this agent.
             active_pools = (
                 self.plugin_rpc.get_active_pools(host=self.agent_host)
