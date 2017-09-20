@@ -20,13 +20,13 @@ import f5.oslbaasv1driver.drivers.constants as lbaasv1const
 try:
     from neutron.services.loadbalancer import agent_scheduler
     from neutron.openstack.common import log as logging
-    from neutron.extensions.lbaas_agentscheduler import NoActiveLbaasAgent
+    from neutron.extensions.lbaas_agentscheduler import NoActiveLbaasAgent, NoEligibleLbaasAgent
 except ImportError:
     # Kilo
     from neutron_lbaas.services.loadbalancer import agent_scheduler
     from oslo_log import log as logging
     from neutron_lbaas.extensions.lbaas_agentscheduler \
-        import NoActiveLbaasAgent
+        import NoActiveLbaasAgent, NoEligibleLbaasAgent
 
 LOG = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class TenantScheduler(agent_scheduler.ChanceScheduler):
     def scrub_dead_agents(self, plugin, context, env, group=None):
         dead_agents = self.get_dead_agents_in_env(plugin, context, env, group)
         for agent in dead_agents:
-            self.rebind_pools(context, plugin, env, group, agent)
+            self.rebind_pools(plugin, context, env, group, agent)
 
     def get_active_agents_in_env(self, plugin, context, env, group=None):
         with context.session.begin(subtransactions=True):
