@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import json
 import uuid
 import netaddr
 import datetime
@@ -1863,12 +1864,26 @@ class F5PluginDriver(LoadBalancerAbstractDriver):
         # call the RPC proxy with the constructed message
         self.agent_rpc.get_pool_stats(context, pool, service, agent['host'])
 
-    @staticmethod
-    def _is_global_routed(agent):
+    def deserialize_agent_configurations(self, configurations):
+        agent_conf = configurations
+        if not isinstance(agent_conf, dict):
+            try:
+                agent_conf = json.loads(configurations)
+            except ValueError as ve:
+                LOG.error('can not JSON decode %s : %s'
+                          % (agent_conf, ve.message))
+                agent_conf = {}
+        return agent_conf
+
+    # @staticmethod
+    def _is_global_routed(self, agent):
         """ Is the agent in global routed mode? """
         if 'configurations' in agent:
-            if 'global_routed_mode' in agent['configurations']:
-                return agent['configurations']['global_routed_mode']
+            ac = self.deserialize_agent_configurations(
+                agent['configurations']
+            )
+            if 'global_routed_mode' in ac:
+                return ac['global_routed_mode']
         return False
 
     def _get_pool(self, context, pool_id):

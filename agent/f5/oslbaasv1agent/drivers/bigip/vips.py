@@ -219,6 +219,8 @@ class BigipVipManager(object):
                 set_persist(name=vip['id'],
                             profile_name='/Common/source_addr',
                             folder=vip['tenant_id'])
+                if pool['protocol'] == 'TCP' or pool['protocol'] == 'HTTPS':
+                    bigip_vs.remove_profile(name=vip['id'], profile_name='/Common/http', folder=vip['tenant_id'])
             elif persistence_type == 'HTTP_COOKIE':
                 # HTTP cookie persistence requires an HTTP profile
                 LOG.debug('adding http profile and' +
@@ -236,52 +238,20 @@ class BigipVipManager(object):
                                          folder=vip['tenant_id'])
             elif persistence_type == 'APP_COOKIE':
                 self._set_bigip_vip_cookie_persist(bigip, service)
+        elif pool['lb_method'].upper() == 'SOURCE_IP':
+            bigip_vs.set_persist_profile(name=vip['id'], profile_name='/Common/source_addr', folder=vip['tenant_id'])
         else:
             bigip_vs.remove_all_persist_profiles(name=vip['id'],
                                                  folder=vip['tenant_id'])
 
         if vip['connection_limit'] > 0 and 'protocol' in vip:
-            # spec says you need to do this for HTTP
-            # and HTTPS, but unless you can decrypt
-            # you can't measure HTTP rps for HTTPs
             conn_limit = int(vip['connection_limit'])
-            if vip['protocol'] == 'HTTP':
-                LOG.debug('adding http profile and RPS throttle rule')
-                # add an http profile
-                bigip_vs.add_profile(
-                    name=vip['id'],
-                    profile_name='/Common/http',
-                    folder=vip['tenant_id'])
-                # create the rps irule
-                rule_definition = \
-                    self._create_http_rps_throttle_rule(conn_limit)
-                # try to create the irule
-                bigip.rule.create(name=RPS_THROTTLE_RULE_PREFIX + vip['id'],
-                                  rule_definition=rule_definition,
-                                  folder=vip['tenant_id'])
-                # for the rule text to update becuase
-                # connection limit may have changed
-                bigip.rule.update(name=RPS_THROTTLE_RULE_PREFIX + vip['id'],
-                                  rule_definition=rule_definition,
-                                  folder=vip['tenant_id'])
-                # add the throttle to the vip
-                rule_name = RPS_THROTTLE_RULE_PREFIX + vip['id']
-                bigip_vs.add_rule(name=vip['id'], rule_name=rule_name,
-                                  priority=500, folder=vip['tenant_id'])
-            else:
-                LOG.debug('setting connection limit')
-                # if not HTTP.. use connection limits
-                bigip_vs.set_connection_limit(name=vip['id'],
-                                              connection_limit=conn_limit,
-                                              folder=pool['tenant_id'])
+            LOG.debug('setting connection limit')
+            # if not HTTP.. use connection limits
+            bigip_vs.set_connection_limit(name=vip['id'],
+                                          connection_limit=conn_limit,
+                                          folder=pool['tenant_id'])
         else:
-            # clear throttle rule
-            LOG.debug('removing RPS throttle rule if present')
-            rule_name = RPS_THROTTLE_RULE_PREFIX + vip['id']
-            bigip_vs.remove_rule(name=vip['id'],
-                                 rule_name=rule_name,
-                                 priority=500,
-                                 folder=vip['tenant_id'])
             # clear the connection limits
             LOG.debug('removing connection limits')
             bigip_vs.set_connection_limit(name=vip['id'],

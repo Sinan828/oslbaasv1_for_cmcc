@@ -3,6 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="a367aed6-df86-464e-ae3b-f0ea1e76056c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py" afterPath="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/vips.py" afterPath="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/vips.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/agent_scheduler.py" afterPath="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/agent_scheduler.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py" afterPath="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,59 +24,48 @@
       <file leaf-file-name="agent_manager.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="694" column="24" lean-forward="false" selection-start-line="694" selection-start-column="8" selection-end-line="694" selection-end-column="24" />
-              <folding />
+            <state relative-caret-position="302">
+              <caret line="337" column="12" lean-forward="true" selection-start-line="337" selection-start-column="12" selection-end-line="337" selection-end-column="12" />
+              <folding>
+                <element signature="e#581#592#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="plugin_driver.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="vips.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/vips.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="6422">
+              <caret line="338" column="55" lean-forward="true" selection-start-line="338" selection-start-column="55" selection-end-line="338" selection-end-column="55" />
+              <folding>
+                <element signature="e#805#865#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="agent_scheduler.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/agent_scheduler.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="335">
+              <caret line="127" column="63" lean-forward="true" selection-start-line="127" selection-start-column="63" selection-end-line="127" selection-end-column="63" />
+              <folding>
+                <element signature="e#581#594#0" expanded="true" />
+                <marker date="1505991437000" expanded="true" signature="2183:2218" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="plugin_driver.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="273">
-              <caret line="387" column="44" lean-forward="true" selection-start-line="387" selection-start-column="44" selection-end-line="387" selection-end-column="44" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="icontrol_driver.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="455">
-              <caret line="1110" column="64" lean-forward="true" selection-start-line="1110" selection-start-column="64" selection-end-line="1110" selection-end-column="64" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="network_direct.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/network_direct.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="86" column="0" lean-forward="true" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lbaas_bigip.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/lbaas_bigip.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="185" column="0" lean-forward="true" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pool.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/common/f5/bigip/interfaces/pool.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="1006" column="8" lean-forward="false" selection-start-line="1006" selection-start-column="8" selection-end-line="1006" selection-end-column="8" />
-              <folding />
+            <state relative-caret-position="7893">
+              <caret line="1601" column="0" lean-forward="true" selection-start-line="1601" selection-start-column="0" selection-end-line="1601" selection-end-column="0" />
+              <folding>
+                <element signature="e#605#616#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -81,36 +74,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>pool</find>
-      <find>environment_prefix +</find>
-      <find>m</find>
-      <find>mi</find>
-      <find>missi</find>
-      <find>missing</find>
-      <find>a</find>
-      <find>act</find>
-      <find>acti</find>
-      <find>active</find>
-      <find>active poo</find>
-      <find>get_service_by_pool_id</find>
-      <find>Could not recover devices</find>
-      <find>u</find>
-      <find>ut</find>
-      <find>utils</find>
-      <find>util</find>
-      <find>util.ba</find>
-      <find>util.b</find>
-      <find>util.</find>
-      <find>d</find>
-      <find>def sync</find>
-      <find>def ex</find>
-      <find>active pool</find>
-      <find>_assure_pool_delete</find>
-      <find>folder_exists</find>
-      <find>2017-09-20 16:54:45.602 59287 DEBUG f5.oslbaasv1agent.drivers.bigip.vips [-] removing RPS throttle rule if present _update_bigip_vip /usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip/vips.py:2802017-09-20 16:54:45.602 59287 DEBUG f5.bigip.interfaces [-] VirtualServer::remove_rule called with args: () kwargs: {'priority': 500, 'rule_name': u'uuid_rps_throttle_70a90434-9bc4-465f-9c3f-87dfcc34002d', 'folder': u'uuid_8eba030ba17b4d05ad3346ec765e82bc', 'name': u'uuid_70a90434-9bc4-465f-9c3f-87dfcc34002d'} wrapper /usr/lib/python2.7/site-packages/f5/bigip/interfaces/__init__.py:2442017-09-20 16:54:45.612 59287 DEBUG f5.oslbaasv1agent.drivers.bigip.vips [-] removing connection limits _update_bigip_vip /usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip/vips.py:2872017-09-20 16:54:45.612 59287 DEBUG f5.bigip.interfaces [-] VirtualServer::set_connection_limit called with args: () kwargs: {'folder': u'uuid_8eba030ba17b4d05ad3346ec765e82bc', 'connection_limit': 0, 'name': u'uuid_70a90434-9bc4-465f-9c3f-87dfcc34002d'} wrapper /usr/lib/python2.7/site-packages/f5/bigip/interfaces/__init__.py:2442017-09-20 16:54:45.647 59287 DEBUG f5.oslbaasv1agent.drivers.bigip.lbaas_bigip [-]     _assure_vip took 0.43778 secs assure_service /usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip/lbaas_bigip.py:742017-09-20 16:54:45.647 59287 DEBUG f5.oslbaasv1agent.drivers.bigip.lbaas_bigip [-]     _assure_pool_delete took 0.00001 secs assure_service /usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip/lbaas_bigip.py:792017-09-20 16:54:45.648 59287 ERROR f5.oslbaasv1agent.drivers.bigip.icontrol_driver [-] post_service_networking exception: 'NoneType' object has no attribute '__getitem__'2017-09-20 16:54:45.648 59287 DEBUG f5.oslbaasv1agent.drivers.bigip.icontrol_driver [-]     _post_service_networking took 0.00020 secs _common_service_handler /usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py:13922017-09-20 16:54:45.648 59287 DEBUG f5.oslbaasv1agent.drivers.bigip.icontrol_driver [-]     _assure_tenant_cleanup took 0.00002 secs _common_service_handler /usr/lib/python2.7/site-packages/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py:1399@@@@@@@@@@@@@@@@@@@@                                                                                                                                                                55008,89      98%</find>
-      <find>post_service_networking exception</find>
-      <find>post_service_networking: calling</find>
-      <find>_post_service_networking took</find>
+      <find>self.env</find>
+      <find>self.en</find>
+      <find>self.e</find>
+      <find>self.</find>
+      <find>se</find>
+      <find>e</find>
+      <find>env =</find>
+      <find>env =</find>
+      <find>env</find>
+      <find>env_agents:</find>
+      <find>get_lbaas_agent_hosting_pool</find>
+      <find>group</find>
+      <find>X</find>
+      <find>XXX</find>
+      <find>XXX 3</find>
+      <find>XXX</find>
+      <find>xxxxx 333333 ENV</find>
+      <find>get_agents_in_env</find>
+      <find>get_active_agents_in_env</find>
+      <find>environment_group_number</find>
+      <find>No active loadbalancer agent found for pool</find>
+      <find>No active loadbalancer agent found for poo</find>
+      <find>No active loadbalancer agent found for</find>
+      <find>No active loadbalancer agent</find>
+      <find>global_routed_mode=self._is_global_routed(agent)</find>
+      <find>_is_global_routed</find>
+      <find>deserialize_agent_configurations</find>
+      <find>update pool agent</find>
+      <find>update pool agent</find>
+      <find>def update_pool</find>
     </findStrings>
     <replaceStrings>
       <replace>is_operational</replace>
@@ -122,21 +115,21 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/vips.py" />
         <option value="$PROJECT_DIR$/common/f5/bigip/interfaces/virtual_server.py" />
         <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/pools.py" />
-        <option value="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py" />
         <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent.py" />
         <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_api.py" />
-        <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py" />
-        <option value="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/agent_scheduler.py" />
         <option value="$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/f5/bigip/interfaces/route.py" />
         <option value="$PROJECT_DIR$/common/f5/bigip/interfaces/arp.py" />
         <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/lbaas_bigiq.py" />
         <option value="$PROJECT_DIR$/common/f5/bigip/interfaces/cluster.py" />
-        <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py" />
         <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/lbaas_bigip.py" />
         <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/network_direct.py" />
+        <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py" />
+        <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py" />
+        <option value="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/agent_scheduler.py" />
+        <option value="$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/vips.py" />
+        <option value="$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py" />
       </list>
     </option>
   </component>
@@ -176,6 +169,112 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="f5" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="f5" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="f5" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="utils" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="f5" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1driver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="drivers" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -392,6 +491,76 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="bigip" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="agent" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="etc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="systemd" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="agent" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="etc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="neutron" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oslbaasv1_for_cmcc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="agent" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="etc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="init.d" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -661,11 +830,19 @@
       <option name="project" value="LOCAL" />
       <updated>1505904317845</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="milestone.">
+      <created>1505904329872</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1505904329872</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="834" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -674,11 +851,11 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32960895" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32960895" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32960895" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32960895" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3390558" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3390558" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39944133" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -710,46 +887,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/django/contrib/sessions/backends/cached_db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1102">
-          <caret line="58" column="23" lean-forward="false" selection-start-line="58" selection-start-column="17" selection-end-line="58" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/django/contrib/sessions/backends/cache.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1216">
-          <caret line="64" column="23" lean-forward="false" selection-start-line="64" selection-start-column="17" selection-end-line="64" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/django/core/files/storage.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5605">
-          <caret line="295" column="23" lean-forward="false" selection-start-line="295" selection-start-column="17" selection-end-line="295" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/f5/bigip/interfaces/nat.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4541">
-          <caret line="239" column="23" lean-forward="false" selection-start-line="239" selection-start-column="17" selection-end-line="239" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/boto/storage_uri.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17138">
-          <caret line="902" column="23" lean-forward="false" selection-start-line="902" selection-start-column="17" selection-end-line="902" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15048">
@@ -1050,14 +1187,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="694" column="24" lean-forward="false" selection-start-line="694" selection-start-column="8" selection-end-line="694" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/f5/oslbaasv1agent/drivers/bigip/pools.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
@@ -1084,22 +1213,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/common/f5/bigip/interfaces/pool.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="1006" column="8" lean-forward="false" selection-start-line="1006" selection-start-column="8" selection-end-line="1006" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="387" column="44" lean-forward="true" selection-start-line="387" selection-start-column="44" selection-end-line="387" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/remote_sources/282625094/918732847/f5/oslbaasv1agent/drivers/bigip/network_direct.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
@@ -1108,27 +1221,100 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/network_direct.py">
+    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/lbaas_bigip.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="86" column="0" lean-forward="true" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
+        <state relative-caret-position="206">
+          <caret line="185" column="0" lean-forward="false" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/lbaas_bigip.py">
+    <entry file="file://$PROJECT_DIR$/common/f5/bigip/interfaces/pool.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="185" column="0" lean-forward="true" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+        <state relative-caret-position="215">
+          <caret line="224" column="20" lean-forward="true" selection-start-line="224" selection-start-column="20" selection-end-line="224" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/driver/f5/oslbaasv1driver/utils/rebind_pools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1498">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/network_direct.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" column="62" lean-forward="false" selection-start-line="12" selection-start-column="62" selection-end-line="12" selection-end-column="62" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/icontrol_driver.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="455">
-          <caret line="1110" column="64" lean-forward="true" selection-start-line="1110" selection-start-column="64" selection-end-line="1110" selection-end-column="64" />
+        <state relative-caret-position="-16731">
+          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agent/etc/init.d/f5-oslbaasv1-agent">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.1/python_stubs/282625094/__builtin__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="4295" column="8" lean-forward="false" selection-start-line="4295" selection-start-column="8" selection-end-line="4295" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/agent_scheduler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="335">
+          <caret line="127" column="63" lean-forward="true" selection-start-line="127" selection-start-column="63" selection-end-line="127" selection-end-column="63" />
+          <folding>
+            <element signature="e#581#594#0" expanded="true" />
+            <marker date="1505991437000" expanded="true" signature="2183:2218" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/agent_manager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="337" column="12" lean-forward="true" selection-start-line="337" selection-start-column="12" selection-end-line="337" selection-end-column="12" />
+          <folding>
+            <element signature="e#581#592#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agent/f5/oslbaasv1agent/drivers/bigip/vips.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6422">
+          <caret line="338" column="55" lean-forward="true" selection-start-line="338" selection-start-column="55" selection-end-line="338" selection-end-column="55" />
+          <folding>
+            <element signature="e#805#865#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/driver/f5/oslbaasv1driver/drivers/plugin_driver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7893">
+          <caret line="1601" column="0" lean-forward="true" selection-start-line="1601" selection-start-column="0" selection-end-line="1601" selection-end-column="0" />
+          <folding>
+            <element signature="e#605#616#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

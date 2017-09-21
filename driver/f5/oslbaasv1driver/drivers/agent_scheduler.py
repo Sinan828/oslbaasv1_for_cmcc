@@ -49,13 +49,10 @@ class TenantScheduler(agent_scheduler.ChanceScheduler):
             # returns {'agent': agent_dict}
             lbaas_agent = plugin.get_lbaas_agent_hosting_pool(context,
                                                               pool_id)
-            if not lbaas_agent:
-                raise NoActiveLbaasAgent(pool_id=pool_id)
 
             # if the agent bound to this pool is alive, return it
-            if (lbaas_agent['agent']['alive'] or \
-                    lbaas_agent['agent']['admin_state_up']) and \
-                            env == None:
+            if (lbaas_agent['agent']['alive'] and \
+                    lbaas_agent['agent']['admin_state_up']):
                 return lbaas_agent
             else:
                 # BASIC AGENT TASK REDUDANCY
@@ -76,14 +73,14 @@ class TenantScheduler(agent_scheduler.ChanceScheduler):
                 else:
                     gn = 1
                 reassigned_agent = self.rebind_pools(
-                    context, plugin, env, gn, lbaas_agent['agent'])
+                    plugin, context, env, gn, lbaas_agent['agent'])
                 if reassigned_agent:
                     lbaas_agent = {'agent': reassigned_agent}
             return lbaas_agent
 
     def rebind_pools(
             self, plugin, context, env, group, current_agent):
-        env_agents = self.get_agents_in_env(context, plugin, env,
+        env_agents = self.get_agents_in_env(plugin, context, env,
                                             group=group, active=True)
         if env_agents:
             reassigned_agent = env_agents[0]
@@ -122,7 +119,7 @@ class TenantScheduler(agent_scheduler.ChanceScheduler):
         for agent in dead_agents:
             self.rebind_pools(plugin, context, env, group, agent)
 
-    def get_active_agents_in_env(self, plugin, context, env, group=None):
+    def get_agents_in_env(self, plugin, context, env, group=None, active=None):
         with context.session.begin(subtransactions=True):
             candidates = plugin.get_lbaas_agents(context, active=True)
             return_agents = []
@@ -132,32 +129,13 @@ class TenantScheduler(agent_scheduler.ChanceScheduler):
                             candidate['configurations']
                     )
                     if 'environment_prefix' in ac:
-                        if ac['environment_prefix'] == env:
-                            if group:
-                                if 'environment_group_number' in ac and \
-                                  ac['environment_group_number'] == group:
-                                    return_agents.append(candidate)
-                            else:
+                        # if ac['environment_prefix'] == env:
+                        if group:
+                            if 'environment_group_number' in ac and \
+                              ac['environment_group_number'] == group:
                                 return_agents.append(candidate)
-            return return_agents
-
-    def get_agents_in_env(self, plugin, context, env, group=None, active=None):
-        with context.session.begin(subtransactions=True):
-            candidates = plugin.get_lbaas_agents(context)
-            return_agents = []
-            if candidates:
-                for candidate in candidates:
-                    ac = self.deserialize_agent_configurations(
-                            candidate['configurations']
-                    )
-                    if 'environment_prefix' in ac:
-                        if ac['environment_prefix'] == env:
-                            if group:
-                                if 'environment_group_number' in ac and \
-                                  ac['environment_group_number'] == group:
-                                    return_agents.append(candidate)
-                            else:
-                                return_agents.append(candidate)
+                        else:
+                            return_agents.append(candidate)
             return return_agents
 
     def get_capacity(self, configurations):
@@ -201,9 +179,10 @@ class TenantScheduler(agent_scheduler.ChanceScheduler):
                 # Find all active agent candidate in this env.
                 # We use environment_prefix to find f5 agents
                 # rather then map to the agent binary name.
-                candidates = self.get_active_agents_in_env(plugin,
-                                                           context,
-                                                           env)
+                candidates = self.get_agents_in_env(plugin,
+                                                    context,
+                                                    env,
+                                                    active=True)
                 if not candidates:
                     LOG.warn(_('No f5 lbaas agents are active env %s' % env))
                     return None

@@ -260,26 +260,6 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
         self.lbdriver = importutils.import_object(
             conf.f5_bigip_lbaas_device_driver, self.conf)
 
-        # try:
-        #     LOG.debug(_('loading LBaaS driver %s'
-        #                 % conf.f5_bigip_lbaas_device_driver))
-        #         self.lbdriver = importutils.import_object(
-        #             conf.f5_bigip_lbaas_device_driver, self.conf)
-        #     if self.lbdriver.agent_id:
-        #         self.agent_host = conf.host + ":" + self.lbdriver.agent_id
-        #         self.lbdriver.agent_host = self.agent_host
-        #         LOG.debug('setting agent host to %s' % self.agent_host)
-        #     else:
-        #         self.agent_host = None
-        #         LOG.error(_('Driver did not initialize. Fix the driver config '
-        #                     'and restart the agent.'))
-        #         return
-        # except ImportError as ie:
-        #     msg = _('Error importing loadbalancer device driver: %s error %s'
-        #             % (conf.f5_bigip_lbaas_device_driver,  repr(ie)))
-        #     LOG.error(msg)
-        #     raise SystemExit(msg)
-
         # Set the agent ID
         if self.conf.agent_id:
             self.agent_host = self.conf.agent_id
@@ -294,10 +274,6 @@ class LbaasAgentManagerBase(periodic_task.PeriodicTasks):
             self.agent_host = conf.host + ":" + agent_hash
             LOG.debug('setting agent host to %s' % self.agent_host)
 
-        # agent_configurations = \
-        #     {'environment_prefix': self.conf.environment_prefix,
-        #      'environment_group_number': self.conf.environment_group_number,
-        #      'global_routed_mode': self.conf.f5_global_routed_mode}
         agent_configurations = (
             {'environment_prefix': self.conf.environment_prefix,
              'environment_group_number': self.conf.environment_group_number,
